@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model BinhLuan {
+  id                 Int        @id @default(autoincrement())
+  ma_cong_viec       Int?
+  ma_nguoi_binh_luan Int?
+  ngay_binh_luan     DateTime?  @db.DateTime(0)
+  noi_dung           String?    @db.VarChar(500)
+  sao_binh_luan      Int?
+  NguoiDung          NguoiDung? @relation(fields: [ma_nguoi_binh_luan], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "BinhLuan_NguoiDung")
+  Phong              Phong?     @relation(fields: [ma_cong_viec], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "BinhLuan_Phong")
+
+  @@index([ma_nguoi_binh_luan], map: "BinhLuan_NguoiDung")
+  @@index([ma_cong_viec], map: "BinhLuan_Phong")
+}
+
+model DatPhong {
+  id             Int        @id @default(autoincrement())
+  ma_phong       Int?
+  ngay_den       DateTime?  @db.DateTime(0)
+  ngay_di        DateTime?  @db.DateTime(0)
+  so_luong_khach Int?
+  ma_nguoi_dat   Int?
+  NguoiDung      NguoiDung? @relation(fields: [ma_nguoi_dat], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "DatPhong_NguoiDung")
+  Phong          Phong?     @relation(fields: [ma_phong], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "DatPhong_Phong")
+
+  @@index([ma_nguoi_dat], map: "DatPhong_NguoiDung")
+  @@index([ma_phong], map: "DatPhong_Phong")
+}
+
+model NguoiDung {
+  id        Int            @id @default(autoincrement())
+  name      String?        @db.VarChar(200)
+  email     String?        @db.VarChar(200)
+  pass_word String?        @db.VarChar(200)
+  phone     String?        @db.VarChar(20)
+  birth_day String?        @db.VarChar(200)
+  gender    String?        @db.VarChar(20)
+  role      NguoiDung_role @default(USER)
+  avatar    String?        @db.VarChar(200)
+  BinhLuan  BinhLuan[]
+  DatPhong  DatPhong[]
+}
+
+model Phong {
+  id        Int        @id @default(autoincrement())
+  ten_phong String?    @db.VarChar(200)
+  khach     Int?
+  phong_ngu Int?
+  giuong    Int?
+  phong_tam Int?
+  mo_ta     String?    @db.VarChar(500)
+  gia_tien  Int?
+  may_giat  Boolean?
+  ban_la    Boolean?
+  tivi      Boolean?
+  wifi      Boolean?
+  bep       Boolean?
+  do_xe     Boolean?
+  ho_boi    Boolean?
+  ban_ui    Boolean?
+  ma_vi_tri Int?
+  hinh_anh  String?    @db.VarChar(200)
+  BinhLuan  BinhLuan[]
+  DatPhong  DatPhong[]
+  ViTri     ViTri?     @relation(fields: [ma_vi_tri], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_ViTriPhong")
+
+  @@index([ma_vi_tri], map: "FK_ViTriPhong")
+}
+
+model ViTri {
+  id         Int     @id @default(autoincrement())
+  ten_vi_tri String? @db.VarChar(200)
+  tinh_thanh String? @db.VarChar(200)
+  quoc_gia   String? @db.VarChar(200)
+  hinh_anh   String? @db.VarChar(200)
+  Phong      Phong[]
+}
+
+enum NguoiDung_role {
+  USER
+  ADMIN
+}
